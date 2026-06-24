@@ -152,16 +152,17 @@ router.post('/', async (req, res) => {
       .input('diag4', sql.NVarChar(MAX_DIAG), diags[3])
       .input('abanTrab', sql.Bit, abandona ? 1 : 0)
       .input('fecAbanTrab', sql.DateTime, fAbandono)
+      .input('aceptaDenu', sql.NVarChar(1), 'P')
       .query(
         `INSERT INTO dbo.ACC_Denuncias
             (DE_TipoDocu, DE_NumeroDocu, DE_Area, DE_FecDenu, DE_FecAcc,
              DE_DiagIng1, DE_DiagIng2, DE_DiagIng3, DE_DiagIng4,
-             DE_AbanTrab, DE_FecAbanTrab)
+             DE_AbanTrab, DE_FecAbanTrab, DE_AceptaDenu)
          OUTPUT INSERTED.*
          VALUES
             (@tipoDocu, @numeroDocu, @area, @fecDenu, @fecAcc,
              @diag1, @diag2, @diag3, @diag4,
-             @abanTrab, @fecAbanTrab)`
+             @abanTrab, @fecAbanTrab, @aceptaDenu)`
       );
 
     const creada = result.recordset[0];
