@@ -33,6 +33,7 @@ export const config = {
     secret: process.env.JWT_SECRET || 'dev_secret_no_usar_en_produccion',
     expiresIn: process.env.JWT_EXPIRES_IN || '8h',
   },
+  adminApiKey: process.env.ADMIN_API_KEY,
   mail: {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '587', 10),

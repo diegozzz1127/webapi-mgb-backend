@@ -5,6 +5,7 @@ import { config } from './config.js';
 import authRoutes from './routes/auth.js';
 import denunciasRoutes from './routes/denuncias.js';
 import personalRoutes from './routes/personal.js';
+import usuariosRoutes from './routes/usuarios.js';
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/denuncias', denunciasRoutes);
 app.use('/api/personal', personalRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Recurso no encontrado.' });
