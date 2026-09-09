@@ -41,6 +41,6 @@ export const config = {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: process.env.MAIL_TO || 'consultora@secureinformatica.com.ar',
+    to: process.env.MAIL_TO || 'artbaigorria@eaart.com.ar',
   },
 };
