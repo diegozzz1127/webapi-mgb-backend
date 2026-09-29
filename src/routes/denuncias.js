@@ -53,7 +53,11 @@ router.get('/', async (req, res) => {
  *   fechaAccidente,       -> DE_FecAcc
  *   diag1..diag4,         -> DE_DiagIng1..4 (máx 80 c/u)
  *   abandonaTrabajo,      -> DE_AbanTrab (bool)
- *   fechaAbandono         -> DE_FecAbanTrab (requerida si abandonaTrabajo = true)
+ *   fechaAbandono,        -> DE_FecAbanTrab (requerida si abandonaTrabajo = true)
+ *   tareaHabitual,        -> DE_TareaHabitual (bool)
+ *   ordenSuperior,        -> DE_OrdenSuperior (bool)
+ *   horarioLugar,         -> DE_HorarioLugar (texto máx 200)
+ *   autorizacionSalida    -> DE_AutorizacionSalida (bool)
  * }
  * Los campos DE_TipoDocu, DE_NumeroDocu y DE_Area se completan desde ACC_Personal.
  */
@@ -68,6 +72,10 @@ router.post('/', async (req, res) => {
     diag4,
     abandonaTrabajo,
     fechaAbandono,
+    tareaHabitual,
+    ordenSuperior,
+    horarioLugar,
+    autorizacionSalida,
   } = req.body || {};
 
   if (!dni || !/^\d+$/.test(String(dni).trim())) {
@@ -118,6 +126,32 @@ router.post('/', async (req, res) => {
     }
   }
 
+  // Nuevos campos SI/NO (deben venir definidos: true o false)
+  const toBoolStrict = (v) => {
+    if (v === true || v === 'true' || v === 1 || v === '1' || v === 'si' || v === 'SI') return true;
+    if (v === false || v === 'false' || v === 0 || v === '0' || v === 'no' || v === 'NO') return false;
+    return null;
+  };
+
+  const bTareaHabitual = toBoolStrict(tareaHabitual);
+  const bOrdenSuperior = toBoolStrict(ordenSuperior);
+  const bAutorizacionSalida = toBoolStrict(autorizacionSalida);
+
+  if (bTareaHabitual === null) {
+    return res.status(400).json({ error: 'Indicá si la tarea correspondía a su tarea habitual (Sí/No).' });
+  }
+  if (bOrdenSuperior === null) {
+    return res.status(400).json({ error: 'Indicá si la tarea respondía a la orden de un superior (Sí/No).' });
+  }
+  if (bAutorizacionSalida === null) {
+    return res.status(400).json({ error: 'Indicá si tenía autorización para salir del establecimiento (Sí/No).' });
+  }
+
+  const horarioLugarTexto = horarioLugar ? String(horarioLugar).trim() : null;
+  if (horarioLugarTexto && horarioLugarTexto.length > 200) {
+    return res.status(400).json({ error: 'El horario y lugar admite máximo 200 caracteres.' });
+  }
+
   try {
     const pool = await getPool();
 
@@ -153,16 +187,22 @@ router.post('/', async (req, res) => {
       .input('abanTrab', sql.Bit, abandona ? 1 : 0)
       .input('fecAbanTrab', sql.DateTime, fAbandono)
       .input('aceptaDenu', sql.NVarChar(1), 'P')
+      .input('tareaHabitual', sql.Bit, bTareaHabitual ? 1 : 0)
+      .input('ordenSuperior', sql.Bit, bOrdenSuperior ? 1 : 0)
+      .input('horarioLugar', sql.NVarChar(200), horarioLugarTexto)
+      .input('autorizacionSalida', sql.Bit, bAutorizacionSalida ? 1 : 0)
       .query(
         `INSERT INTO dbo.ACC_Denuncias
             (DE_TipoDocu, DE_NumeroDocu, DE_Area, DE_FecDenu, DE_FecAcc,
              DE_DiagIng1, DE_DiagIng2, DE_DiagIng3, DE_DiagIng4,
-             DE_AbanTrab, DE_FecAbanTrab, DE_AceptaDenu)
+             DE_AbanTrab, DE_FecAbanTrab, DE_AceptaDenu,
+             DE_TareaHabitual, DE_OrdenSuperior, DE_HorarioLugar, DE_AutorizacionSalida)
          OUTPUT INSERTED.*
          VALUES
             (@tipoDocu, @numeroDocu, @area, @fecDenu, @fecAcc,
              @diag1, @diag2, @diag3, @diag4,
-             @abanTrab, @fecAbanTrab, @aceptaDenu)`
+             @abanTrab, @fecAbanTrab, @aceptaDenu,
+             @tareaHabitual, @ordenSuperior, @horarioLugar, @autorizacionSalida)`
       );
 
     const creada = result.recordset[0];

@@ -46,7 +46,11 @@ export async function enviarDenunciaEmail(persona, denuncia) {
     denuncia.DE_DiagIng4,
   ].filter((d) => d && String(d).trim());
 
-  const asunto = `Accidente de trabajo del empleado ${nombre} - Legajo ${legajo}`;
+  // El asunto comienza con los primeros 4 caracteres del área del empleado
+  const areaPrefijo = (persona.area || '').toString().trim().substring(0, 4);
+  const asunto = `${areaPrefijo} - Accidente de trabajo del empleado ${nombre} - Legajo ${legajo}`;
+
+  const siNo = (v) => (v ? 'Sí' : 'No');
 
   const diagTexto = diagnosticos.length
     ? diagnosticos.map((d, i) => `  ${i + 1}. ${d}`).join('\n')
@@ -64,8 +68,14 @@ export async function enviarDenunciaEmail(persona, denuncia) {
     `  Área: ${persona.area || denuncia.DE_Area || '-'}`,
     `  Fecha de denuncia: ${fmtFecha(denuncia.DE_FecDenu)}`,
     `  Fecha de accidente: ${fmtFecha(denuncia.DE_FecAcc)}`,
-    `  Abandona puesto de trabajo: ${denuncia.DE_AbanTrab ? 'Sí' : 'No'}`,
+    `  Abandona puesto de trabajo: ${siNo(denuncia.DE_AbanTrab)}`,
     `  Fecha de abandono: ${denuncia.DE_AbanTrab ? fmtFecha(denuncia.DE_FecAbanTrab) : '-'}`,
+    '',
+    'INFORMACIÓN ADICIONAL:',
+    `  ¿La tarea que realizaba al momento del accidente corresponde a su tarea habitual?: ${siNo(denuncia.DE_TareaHabitual)}`,
+    `  ¿La tarea que realizaba al momento del accidente responde a la orden de un superior?: ${siNo(denuncia.DE_OrdenSuperior)}`,
+    `  Horario de trabajo que debía cumplir el día del accidente y lugar donde desempeña sus funciones: ${denuncia.DE_HorarioLugar || '-'}`,
+    `  Para los casos producidos fuera del establecimiento, ¿tenía autorización para salir del mismo?: ${siNo(denuncia.DE_AutorizacionSalida)}`,
   ].join('\n');
 
   const diagHtml = diagnosticos.length
@@ -84,8 +94,15 @@ export async function enviarDenunciaEmail(persona, denuncia) {
       <tr><td><b>Área</b></td><td>${escapeHtml(persona.area || String(denuncia.DE_Area || '-'))}</td></tr>
       <tr><td><b>Fecha de denuncia</b></td><td>${fmtFecha(denuncia.DE_FecDenu)}</td></tr>
       <tr><td><b>Fecha de accidente</b></td><td>${fmtFecha(denuncia.DE_FecAcc)}</td></tr>
-      <tr><td><b>Abandona puesto de trabajo</b></td><td>${denuncia.DE_AbanTrab ? 'Sí' : 'No'}</td></tr>
+      <tr><td><b>Abandona puesto de trabajo</b></td><td>${siNo(denuncia.DE_AbanTrab)}</td></tr>
       <tr><td><b>Fecha de abandono</b></td><td>${denuncia.DE_AbanTrab ? fmtFecha(denuncia.DE_FecAbanTrab) : '-'}</td></tr>
+    </table>
+    <h3>Información adicional</h3>
+    <table cellpadding="6" style="border-collapse:collapse;">
+      <tr><td><b>¿La tarea corresponde a su tarea habitual?</b></td><td>${siNo(denuncia.DE_TareaHabitual)}</td></tr>
+      <tr><td><b>¿La tarea responde a la orden de un superior?</b></td><td>${siNo(denuncia.DE_OrdenSuperior)}</td></tr>
+      <tr><td><b>Horario y lugar donde desempeña sus funciones</b></td><td>${escapeHtml(denuncia.DE_HorarioLugar || '-')}</td></tr>
+      <tr><td><b>¿Tenía autorización para salir del establecimiento?</b></td><td>${siNo(denuncia.DE_AutorizacionSalida)}</td></tr>
     </table>
   `;
 
