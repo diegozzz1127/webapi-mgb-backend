@@ -61,6 +61,7 @@ export async function enviarDenunciaEmail(persona, denuncia) {
     diagTexto,
     '',
     'DATOS DE LA DENUNCIA:',
+    `  N° de accidente: ${denuncia.DE_NroAccidente ?? '-'}`,
     `  Empleado: ${nombre}`,
     `  Legajo: ${legajo}`,
     `  Tipo de documento: ${persona.tipoDocu ?? denuncia.DE_TipoDocu ?? '-'}`,
@@ -87,6 +88,7 @@ export async function enviarDenunciaEmail(persona, denuncia) {
     ${diagHtml}
     <h3>Datos de la denuncia</h3>
     <table cellpadding="6" style="border-collapse:collapse;">
+      <tr><td><b>N° de accidente</b></td><td>${denuncia.DE_NroAccidente ?? '-'}</td></tr>
       <tr><td><b>Empleado</b></td><td>${escapeHtml(nombre)}</td></tr>
       <tr><td><b>Legajo</b></td><td>${escapeHtml(legajo)}</td></tr>
       <tr><td><b>Tipo de documento</b></td><td>${persona.tipoDocu ?? denuncia.DE_TipoDocu ?? '-'}</td></tr>

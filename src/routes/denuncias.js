@@ -194,18 +194,20 @@ router.post('/', async (req, res) => {
       .input('usuarioWeb', sql.Int, req.user?.id ?? null)
       .query(
         `INSERT INTO dbo.ACC_Denuncias
-            (DE_TipoDocu, DE_NumeroDocu, DE_Area, DE_FecDenu, DE_FecAcc,
+            (DE_NroAccidente,
+             DE_TipoDocu, DE_NumeroDocu, DE_Area, DE_FecDenu, DE_FecAcc,
              DE_DiagIng1, DE_DiagIng2, DE_DiagIng3, DE_DiagIng4,
              DE_AbanTrab, DE_FecAbanTrab, DE_AceptaDenu,
              DE_TareaHabitual, DE_OrdenSuperior, DE_HorarioLugar, DE_AutorizacionSalida,
              DE_UsuarioWeb)
          OUTPUT INSERTED.*
-         VALUES
-            (@tipoDocu, @numeroDocu, @area, @fecDenu, @fecAcc,
+         SELECT
+             (SELECT ISNULL(MAX(DE_NroAccidente), 0) + 1 FROM dbo.ACC_Denuncias WITH (TABLOCKX, HOLDLOCK)),
+             @tipoDocu, @numeroDocu, @area, @fecDenu, @fecAcc,
              @diag1, @diag2, @diag3, @diag4,
              @abanTrab, @fecAbanTrab, @aceptaDenu,
              @tareaHabitual, @ordenSuperior, @horarioLugar, @autorizacionSalida,
-             @usuarioWeb)`
+             @usuarioWeb`
       );
 
     const creada = result.recordset[0];
