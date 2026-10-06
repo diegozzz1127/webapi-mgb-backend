@@ -192,6 +192,7 @@ router.post('/', async (req, res) => {
       .input('horarioLugar', sql.NVarChar(200), horarioLugarTexto)
       .input('autorizacionSalida', sql.Bit, bAutorizacionSalida ? 1 : 0)
       .input('usuarioWeb', sql.Int, req.user?.id ?? null)
+      .input('siniestro', sql.Numeric(18, 0), 0)
       .query(
         `INSERT INTO dbo.ACC_Denuncias
             (DE_NroAccidente,
@@ -199,7 +200,7 @@ router.post('/', async (req, res) => {
              DE_DiagIng1, DE_DiagIng2, DE_DiagIng3, DE_DiagIng4,
              DE_AbanTrab, DE_FecAbanTrab, DE_AceptaDenu,
              DE_TareaHabitual, DE_OrdenSuperior, DE_HorarioLugar, DE_AutorizacionSalida,
-             DE_UsuarioWeb)
+             DE_UsuarioWeb, DE_Siniestro)
          OUTPUT INSERTED.*
          SELECT
              (SELECT ISNULL(MAX(DE_NroAccidente), 0) + 1 FROM dbo.ACC_Denuncias WITH (TABLOCKX, HOLDLOCK)),
@@ -207,7 +208,7 @@ router.post('/', async (req, res) => {
              @diag1, @diag2, @diag3, @diag4,
              @abanTrab, @fecAbanTrab, @aceptaDenu,
              @tareaHabitual, @ordenSuperior, @horarioLugar, @autorizacionSalida,
-             @usuarioWeb`
+             @usuarioWeb, @siniestro`
       );
 
     const creada = result.recordset[0];
