@@ -34,6 +34,7 @@ router.get('/:dni', async (req, res) => {
             p.PE_Domicilio,
             p.PE_FechaNacimiento,
             p.PE_FechaIngreso,
+            p.PE_Telefono,
             p.PE_Area,
             a.AR_Descripcion
          FROM dbo.ACC_Personal p
@@ -54,6 +55,7 @@ router.get('/:dni', async (req, res) => {
       domicilio: persona.PE_Domicilio,
       fechaNacimiento: persona.PE_FechaNacimiento,
       fechaIngreso: persona.PE_FechaIngreso,
+      telefono: persona.PE_Telefono,
       areaCodigo: persona.PE_Area,
       area: persona.AR_Descripcion,
     });

@@ -76,6 +76,7 @@ router.post('/', async (req, res) => {
     ordenSuperior,
     horarioLugar,
     autorizacionSalida,
+    telefono,
   } = req.body || {};
 
   if (!dni || !/^\d+$/.test(String(dni).trim())) {
@@ -152,6 +153,12 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'El horario y lugar admite máximo 200 caracteres.' });
   }
 
+  // Teléfono del empleado: no obligatorio. Si viene, máx 50 caracteres.
+  const telefonoTexto = telefono != null ? String(telefono).trim() : null;
+  if (telefonoTexto && telefonoTexto.length > 50) {
+    return res.status(400).json({ error: 'El teléfono admite máximo 50 caracteres.' });
+  }
+
   try {
     const pool = await getPool();
 
@@ -212,6 +219,20 @@ router.post('/', async (req, res) => {
       );
 
     const creada = result.recordset[0];
+
+    // Actualizar el teléfono del empleado en ACC_Personal (dato editable, no
+    // obligatorio). Si falla, no se revierte el alta de la denuncia.
+    if (telefonoTexto !== null) {
+      try {
+        await pool
+          .request()
+          .input('dni', sql.Decimal(18, 0), op.PE_NumeroDocu)
+          .input('telefono', sql.NVarChar(50), telefonoTexto || null)
+          .query('UPDATE dbo.ACC_Personal SET PE_Telefono = @telefono WHERE PE_NumeroDocu = @dni');
+      } catch (telErr) {
+        console.error('[denuncias/create] Teléfono no actualizado:', telErr.message);
+      }
+    }
 
     // Enviar el email del resumen. La denuncia ya quedó grabada; si el envío
     // falla, se informa pero no se revierte el alta.
