@@ -104,7 +104,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'El primer renglón de diagnóstico es obligatorio.' });
   }
 
-  const diags = [diag1, diag2, diag3, diag4].map((d) => (d ? String(d).trim() : null));
+  const diags = [diag1, diag2, diag3, diag4].map((d) => (d ? String(d).trim() : ''));
   for (const d of diags) {
     if (d && d.length > MAX_DIAG) {
       return res
@@ -148,7 +148,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Indicá si tenía autorización para salir del establecimiento (Sí/No).' });
   }
 
-  const horarioLugarTexto = horarioLugar ? String(horarioLugar).trim() : null;
+  const horarioLugarTexto = horarioLugar ? String(horarioLugar).trim() : '';
   if (horarioLugarTexto && horarioLugarTexto.length > 200) {
     return res.status(400).json({ error: 'El horario y lugar admite máximo 200 caracteres.' });
   }
@@ -227,7 +227,7 @@ router.post('/', async (req, res) => {
         await pool
           .request()
           .input('dni', sql.Decimal(18, 0), op.PE_NumeroDocu)
-          .input('telefono', sql.NVarChar(50), telefonoTexto || null)
+          .input('telefono', sql.NVarChar(50), telefonoTexto)
           .query('UPDATE dbo.ACC_Personal SET PE_Telefono = @telefono WHERE PE_NumeroDocu = @dni');
       } catch (telErr) {
         console.error('[denuncias/create] Teléfono no actualizado:', telErr.message);
