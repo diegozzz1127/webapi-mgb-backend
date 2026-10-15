@@ -246,6 +246,7 @@ router.post('/', async (req, res) => {
           tipoDocu: op.PE_TipoDocu,
           dni: op.PE_NumeroDocu,
           area: op.AR_Descripcion,
+          telefono: telefonoTexto,
         },
         creada
       );

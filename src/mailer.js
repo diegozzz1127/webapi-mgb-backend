@@ -66,6 +66,7 @@ export async function enviarDenunciaEmail(persona, denuncia) {
     `  Legajo: ${legajo}`,
     `  Tipo de documento: ${persona.tipoDocu ?? denuncia.DE_TipoDocu ?? '-'}`,
     `  Número de documento: ${persona.dni ?? denuncia.DE_NumeroDocu ?? '-'}`,
+    `  Teléfono: ${persona.telefono || '-'}`,
     `  Área: ${persona.area || denuncia.DE_Area || '-'}`,
     `  Fecha de denuncia: ${fmtFecha(denuncia.DE_FecDenu)}`,
     `  Fecha de accidente: ${fmtFecha(denuncia.DE_FecAcc)}`,
@@ -93,6 +94,7 @@ export async function enviarDenunciaEmail(persona, denuncia) {
       <tr><td><b>Legajo</b></td><td>${escapeHtml(legajo)}</td></tr>
       <tr><td><b>Tipo de documento</b></td><td>${persona.tipoDocu ?? denuncia.DE_TipoDocu ?? '-'}</td></tr>
       <tr><td><b>Número de documento</b></td><td>${persona.dni ?? denuncia.DE_NumeroDocu ?? '-'}</td></tr>
+      <tr><td><b>Teléfono</b></td><td>${escapeHtml(persona.telefono || '-')}</td></tr>
       <tr><td><b>Área</b></td><td>${escapeHtml(persona.area || String(denuncia.DE_Area || '-'))}</td></tr>
       <tr><td><b>Fecha de denuncia</b></td><td>${fmtFecha(denuncia.DE_FecDenu)}</td></tr>
       <tr><td><b>Fecha de accidente</b></td><td>${fmtFecha(denuncia.DE_FecAcc)}</td></tr>
